@@ -1,0 +1,1 @@
+# flutter_single_instance
