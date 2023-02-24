@@ -13,7 +13,7 @@ import 'src/flutter_single_instance_windows.dart';
 class FlutterSingleInstancePlatform {
   static FlutterSingleInstance? _instance;
 
-  FlutterSingleInstance get instance {
+  static FlutterSingleInstance get instance {
     _instance ??= Platform.isMacOS
         ? FlutterSingleInstanceMacOS()
         : Platform.isLinux
