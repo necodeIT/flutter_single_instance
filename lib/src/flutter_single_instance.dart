@@ -36,7 +36,7 @@ abstract class FlutterSingleInstance {
 
       var pidName = await getProcessName(pid);
 
-      if (pidName == null) {
+      if (processName == pidName) {
         // Process does not exist, so we can activate this instance.
         await _activateFirstInstance(processName);
 
