@@ -20,7 +20,7 @@ abstract class FlutterSingleInstance {
   /// Returns true if this is the first instance of the app.
   ///
   /// Calls [activateFirstInstance] if this is the first instance.
-  static Future<bool> isFirstInstance(String processName) async {
+  Future<bool> isFirstInstance(String processName) async {
     var pidFile = await _getPidFile(processName);
 
     if (pidFile.existsSync()) {
