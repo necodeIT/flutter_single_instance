@@ -24,4 +24,11 @@ class FlutterSingleInstancePlatform {
 
     return _instance!;
   }
+  
+  /// If enabled (default to [kDebugMode]) skips the check for the first instance.
+  static get bool debugMode => FlutterSingleInstance.debugMode;
+  
+  static set bool debugMode(bool value){
+    FlutterSingleInstance.debugMode = value;
+  }
 }
