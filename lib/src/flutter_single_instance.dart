@@ -15,7 +15,7 @@ abstract class FlutterSingleInstance {
   /// Returns the pid file.
   ///
   /// Does not check if file exists.
-  Future<File> _getPidFile(String processName) async {
+  Future<File> getPidFile(String processName) async {
     var tmp = await getTemporaryDirectory();
 
     return File('${tmp.path}/$processName.pid');
@@ -29,7 +29,7 @@ abstract class FlutterSingleInstance {
       return true;
     }
 
-    var pidFile = await _getPidFile(processName);
+    var pidFile = await getPidFile(processName);
 
     if (pidFile.existsSync()) {
       var pid = int.parse(pidFile.readAsStringSync());
@@ -57,7 +57,7 @@ abstract class FlutterSingleInstance {
   ///
   /// Writes a pid file to the temp directory.
   Future<void> _activateFirstInstance(String processName) async {
-    var pidFile = await _getPidFile(processName);
+    var pidFile = await getPidFile(processName);
 
     await pidFile.writeAsString('$pid');
   }
