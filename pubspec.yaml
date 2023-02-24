@@ -1,7 +1,6 @@
 name: flutter_single_instance
 description: A new Flutter package project.
 version: 0.0.1
-homepage: null
 
 environment:
   sdk: ">=2.16.2 <3.0.0"

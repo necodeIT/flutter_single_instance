@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
 abstract class FlutterSingleInstance {
@@ -7,6 +8,9 @@ abstract class FlutterSingleInstance {
   ///
   /// Returns null if the process does not exist.
   Future<String?> getProcessName(int pid);
+
+  /// If enabled (default to [kDebugMode]) skips the check for the first instance.
+  static bool debugMode = kDebugMode;
 
   /// Returns the pid file.
   ///
@@ -21,6 +25,8 @@ abstract class FlutterSingleInstance {
   ///
   /// Calls [activateFirstInstance] if this is the first instance.
   Future<bool> isFirstInstance(String processName) async {
+    if (debugMode) return false;
+
     var pidFile = await _getPidFile(processName);
 
     if (pidFile.existsSync()) {
