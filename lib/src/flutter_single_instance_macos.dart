@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:flutter_single_instance/flutter_single_instance.dart';
 
-import 'flutter_single_instance.dart';
-
-class FlutterSingleInstanceMacOS extends FlutterSingleInstance {
+/// Provides utilities for checking if this is the first instance of the app.
+///
+/// Platform-specific implementation for macOS.
+class FlutterSingleInstanceMacOS extends FlutterSingleInstanceBase {
   @override
   Future<String?> getProcessName(pid) async {
     var result = await Process.run("ps", ["-p", "$pid"]);

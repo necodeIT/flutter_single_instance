@@ -1,19 +1,12 @@
-import 'dart:io';
+part of flutter_single_instance;
 
-import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
-
-abstract class FlutterSingleInstance {
+/// Base class for platform-specific implementations.
+abstract class FlutterSingleInstanceBase {
   /// Retrieves the process name of the given [pid].
-  ///
-  /// Returns null if the process does not exist.
+  /// Returns [null] if the process does not exist.
   Future<String?> getProcessName(int pid);
 
-  /// If enabled (default to [kDebugMode]) skips the check for the first instance.
-  static bool debugMode = kDebugMode;
-
   /// Returns the pid file.
-  ///
   /// Does not check if file exists.
   Future<File> getPidFile(String processName) async {
     var tmp = await getTemporaryDirectory();
@@ -22,12 +15,14 @@ abstract class FlutterSingleInstance {
   }
 
   /// Returns true if this is the first instance of the app.
-  ///
-  /// Calls [activateFirstInstance] if this is the first instance.
-  Future<bool> isFirstInstance(String processName) async {
-    if (debugMode) {
+  /// Automatically writes a pid file to the temp directory if this is the first instance.
+  Future<bool> isFirstInstance() async {
+    if (FlutterSingleInstance.debugMode) {
       return true;
     }
+
+    var processName = await getProcessName(pid); // get name of current process
+    processName!;
 
     var pidFile = await getPidFile(processName);
 
@@ -54,7 +49,6 @@ abstract class FlutterSingleInstance {
   }
 
   /// Activates the first instance of the app.
-  ///
   /// Writes a pid file to the temp directory.
   Future<void> _activateFirstInstance(String processName) async {
     var pidFile = await getPidFile(processName);

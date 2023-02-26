@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:flutter_single_instance/flutter_single_instance.dart';
 
-import 'flutter_single_instance.dart';
-
-class FlutterSingleInstanceWindows extends FlutterSingleInstance {
+/// Provides utilities for checking if this is the first instance of the app.
+///
+/// Platform-specific implementation for Windows.
+class FlutterSingleInstanceWindows extends FlutterSingleInstanceBase {
   @override
   Future<String?> getProcessName(pid) async {
     var result = await Process.run("tasklist", ["/fi", "PID eq $pid"]);
@@ -15,7 +17,9 @@ class FlutterSingleInstanceWindows extends FlutterSingleInstance {
     // ```
     var output = result.stdout.toString().trim();
 
-    if (output.isEmpty) {
+    // No process found when there are less than 3 rows
+    // if the process is found, there are exactly 3 rows
+    if (output.split("\n").length != 3) {
       return null;
     } else {
       output = output.split("\n").last;
@@ -24,10 +28,5 @@ class FlutterSingleInstanceWindows extends FlutterSingleInstance {
 
       return parts.first.replaceAll(".exe", "");
     }
-  }
-
-  @override
-  Future<void> activateFirstInstance(appName) {
-    throw UnimplementedError();
   }
 }
