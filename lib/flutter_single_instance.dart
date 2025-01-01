@@ -32,11 +32,6 @@ import 'src/unsupported.dart';
 abstract class FlutterSingleInstance {
   static FlutterSingleInstance? _instance;
 
-  /// The instance of [FlutterSingleInstance] for the current platform.
-  static FlutterSingleInstance get platform {
-    return _instance!;
-  }
-
   @protected
   const FlutterSingleInstance.internal();
 
