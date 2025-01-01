@@ -14,6 +14,23 @@ Provides utilities for handiling single instancing in Flutter.
 ✅ - Confirmed working. <br/>
 ⚠️ - Always reports as first instance.
 
+## Installation
+
+Add `flutter_single_instance` as a dependency in your `pubspec.yaml` file.
+
+```yaml
+flutter pub add flutter_single_instance
+```
+
+### MacOS
+
+Disable sandboxing in `macos/Runner/DebugProfile.entitlements` and `macos/Runner/Release.entitlements` files.
+
+```xml
+<key>com.apple.security.app-sandbox</key>
+<false/>
+```
+
 ## Usage
 
 A simple usage example:
