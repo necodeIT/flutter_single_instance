@@ -4,7 +4,9 @@ import 'package:flutter_single_instance/flutter_single_instance.dart';
 /// Provides utilities for checking if this is the first instance of the app.
 ///
 /// Platform-specific implementation for Windows.
-class FlutterSingleInstanceWindows extends FlutterSingleInstanceBase {
+class FlutterSingleInstanceWindows extends FlutterSingleInstance {
+  const FlutterSingleInstanceWindows() : super.internal();
+
   @override
   Future<String?> getProcessName(pid) async {
     var result = await Process.run("tasklist", ["/fi", "PID eq $pid"]);
