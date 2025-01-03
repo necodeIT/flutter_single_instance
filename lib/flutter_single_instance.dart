@@ -98,7 +98,9 @@ abstract class FlutterSingleInstance {
   Future<void> _activateInstance(String processName) async {
     var pidFile = await getPidFile(processName);
 
-    await pidFile?.writeAsString('$pid');
+    if (pidFile?.existsSync() == false) await pidFile?.create();
+
+    await pidFile?.writeAsString(pid.toString());
   }
 
   /// Returns the pid file.
