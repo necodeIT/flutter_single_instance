@@ -25,7 +25,7 @@ class FlutterSingleInstanceMacOS extends FlutterSingleInstance {
 
       var parts = output.split(" ");
 
-      return parts.last;
+      return parts.last.split('/').last;
     }
   }
 }
