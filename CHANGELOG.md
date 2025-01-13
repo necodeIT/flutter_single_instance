@@ -1,6 +1,14 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
+
+## [1.1.2](https://github.com/necodeIT/flutter_single_instance/compare/v1.1.1...v1.1.2) (2025-01-13)
+
+
+### Bug Fixes
+
+* ensure pid file is created before writing process ID ([71094ea](https://github.com/necodeIT/flutter_single_instance/commit/71094ea95d504a7bd879f5a7f4d8099f38c4ea6e))
+* only return process name instead of full path in getProcessName macos ([#3](https://github.com/necodeIT/flutter_single_instance/issues/3)) ([ea1a202](https://github.com/necodeIT/flutter_single_instance/commit/ea1a2029d3e7bb971fc9e7f99f35fc5c356f5618))
 
 ### [1.1.1](https://github.com/necodeIT/flutter_single_instance/compare/v1.1.0...v1.1.1) (2025-01-01)
 
