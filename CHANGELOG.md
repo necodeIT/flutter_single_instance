@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.2.0](https://github.com/necodeIT/flutter_single_instance/compare/v1.1.2...v1.2.0) (2025-01-14)
+
+
+### Features
+
+* add logging ([ca3a162](https://github.com/necodeIT/flutter_single_instance/commit/ca3a162d5c4370eb5d6cbb122e9ccf37b68ca454))
+* implement focussing the main instance ([#2](https://github.com/necodeIT/flutter_single_instance/issues/2)) ([f9e7a19](https://github.com/necodeIT/flutter_single_instance/commit/f9e7a19f34a1f3e7922cbd7a947cc907eefdc674))
+
 ## [1.1.2](https://github.com/necodeIT/flutter_single_instance/compare/v1.1.1...v1.1.2) (2025-01-13)
 
 
