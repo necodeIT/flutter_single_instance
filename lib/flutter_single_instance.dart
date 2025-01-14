@@ -38,6 +38,7 @@ import 'package:flutter_single_instance/src/focus.dart';
 import 'package:flutter_single_instance/src/generated/focus.pbgrpc.dart';
 import 'package:flutter_single_instance/src/instance.dart';
 import 'package:grpc/grpc.dart';
+import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 import 'src/linux.dart';
 import 'src/macos.dart';
@@ -56,16 +57,20 @@ abstract class FlutterSingleInstance {
   Server? _server;
   Instance? _instance;
 
+  /// Logger for this class.
+  @protected
+  Logger get logger => Logger('FlutterSingleInstance.$runtimeType');
+
   /// Provides utilities for checking if this is the first instance of the app.
   /// Make sure to call `WidgetsFlutterBinding.ensureInitialized()` before using this class.
   factory FlutterSingleInstance() {
     _singelton ??= Platform.isMacOS
-        ? FlutterSingleInstanceMacOS()
+        ? MacOS()
         : Platform.isLinux
-            ? FlutterSingleInstanceLinux()
+            ? Linux()
             : Platform.isWindows
-                ? FlutterSingleInstanceWindows()
-                : FlutterSingleInstanceUnsopported();
+                ? Windows()
+                : Unsupported();
 
     return _singelton!;
   }
@@ -82,6 +87,7 @@ abstract class FlutterSingleInstance {
   /// Automatically writes a pid file to the temp directory if this is the first instance.
   Future<bool> isFirstInstance() async {
     if (debugMode) {
+      logger.finest("Debug mode enabled, reporting as first instance");
       return true;
     }
 
@@ -92,6 +98,8 @@ abstract class FlutterSingleInstance {
     pidFile!;
 
     if (!pidFile.existsSync()) {
+      logger.finest("No pid file found, activating instance");
+
       // No pid file, so this is the first instance.
       await activateInstance(processName);
       return true;
@@ -101,12 +109,18 @@ abstract class FlutterSingleInstance {
 
     _instance = Instance.fromJson(jsonDecode(data));
 
+    logger.finest("Pid file found, verifying instance: $_instance");
+
     final pidName = await getProcessName(_instance!.pid);
 
     if (processName == pidName) {
+      logger.finest("Process name matches, reporting as second instance");
+
       // Process exists, so this is not the first instance.
       return false;
     }
+
+    logger.finest("Process name does not match, activating instance");
 
     // Process does not exist, so we can activate this instance.
     await activateInstance(processName);
@@ -127,6 +141,8 @@ abstract class FlutterSingleInstance {
     );
 
     await pidFile?.writeAsString(jsonEncode(instance.toJson()));
+
+    logger.finest("Instance activated: $instance at ${pidFile?.path}");
   }
 
   /// Returns the pid file.
@@ -140,6 +156,8 @@ abstract class FlutterSingleInstance {
   /// Starts an RPC server that listens for focus requests.
   @protected
   Future<int> startRpcServer() async {
+    logger.finest("Starting RPC server");
+
     _server = Server.create(
       services: [FocusService()],
       codecRegistry: CodecRegistry(
@@ -152,6 +170,8 @@ abstract class FlutterSingleInstance {
 
     await _server!.serve(port: 0);
 
+    logger.finest("RPC server started on port ${_server!.port}");
+
     return _server!.port!;
   }
 
@@ -160,6 +180,8 @@ abstract class FlutterSingleInstance {
   Future<String?> focus() async {
     if (_instance == null) return "No instance to focus";
     if (_server != null) return "This is the first instance";
+
+    logger.finest("Focusing instance: $_instance");
 
     try {
       final channel = ClientChannel(
@@ -180,8 +202,17 @@ abstract class FlutterSingleInstance {
 
       final response = await client.focus(FocusRequest());
 
-      return response.success ? null : response.error;
+      if (response.success) {
+        logger.finest("Instance focused");
+
+        return null;
+      } else {
+        logger.finest('Failed to focus instance', response.error);
+
+        return response.error;
+      }
     } catch (e) {
+      logger.finest('Failed to focus instance', e);
       return e.toString();
     }
   }

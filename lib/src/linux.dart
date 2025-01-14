@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:flutter_single_instance/flutter_single_instance.dart';
 
 /// Implementation of [FlutterSingleInstance] for Linux.
-class FlutterSingleInstanceLinux extends FlutterSingleInstance {
+class Linux extends FlutterSingleInstance {
   /// Implementation of [FlutterSingleInstance] for Linux.
-  FlutterSingleInstanceLinux() : super.internal();
+  Linux() : super.internal();
 
   @override
   Future<String?> getProcessName(pid) async {
@@ -27,5 +27,10 @@ class FlutterSingleInstanceLinux extends FlutterSingleInstance {
 
       return parts.last;
     }
+  }
+
+  @override
+  Future<File?> getPidFile(String processName) async {
+    return File('/tmp/$processName.pid');
   }
 }

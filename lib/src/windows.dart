@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:flutter_single_instance/flutter_single_instance.dart';
 
 /// Implementation of [FlutterSingleInstance] for Windows.
-class FlutterSingleInstanceWindows extends FlutterSingleInstance {
+class Windows extends FlutterSingleInstance {
   /// Implementation of [FlutterSingleInstance] for Windows.
-  FlutterSingleInstanceWindows() : super.internal();
+  Windows() : super.internal();
 
   @override
   Future<String?> getProcessName(pid) async {

@@ -1,3 +1,8 @@
+analyzer:
+  exclude:
+    - example/**
+    - lib/src/generated/**
+
 linter:
   rules:
     package_api_docs: true

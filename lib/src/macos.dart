@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:flutter_single_instance/flutter_single_instance.dart';
 
 /// Implementation of [FlutterSingleInstance] for MacOS.
-class FlutterSingleInstanceMacOS extends FlutterSingleInstance {
+class MacOS extends FlutterSingleInstance {
   /// Implementation of [FlutterSingleInstance] for MacOS.
-  FlutterSingleInstanceMacOS() : super.internal();
+  MacOS() : super.internal();
   @override
   Future<String?> getProcessName(pid) async {
     var result = await Process.run("ps", ["-p", "$pid"]);

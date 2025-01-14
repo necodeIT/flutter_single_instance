@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter_single_instance/flutter_single_instance.dart';
 
 /// Implementation of [FlutterSingleInstance] for unsupported platforms.
-class FlutterSingleInstanceUnsopported extends FlutterSingleInstance {
+class Unsupported extends FlutterSingleInstance {
   /// Implementation of [FlutterSingleInstance] for unsupported platforms.
-  FlutterSingleInstanceUnsopported() : super.internal();
+  Unsupported() : super.internal();
 
   @override
   Future<String?> getProcessName(int pid) async => null;
