@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package flutter_single_instance;
+
+service FocusService {
+  rpc Focus(FocusRequest) returns (FocusResponse) {}
+}
+
+message FocusRequest {}
+
+message FocusResponse {
+  bool success = 1;
+  string error = 2;
+}

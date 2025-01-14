@@ -1,17 +1,27 @@
-/// Provides utilities for handiling single instancing in Flutter.
+/// A simple way to check if your application is already running.
 ///
-/// A simple usage example:
+/// ---
 ///
 /// ```dart
+/// import 'dart:io';
+///
+/// import 'package:flutter/material.dart';
 /// import 'package:flutter_single_instance/flutter_single_instance.dart';
 ///
-/// main() async {
+/// void main() async {
 ///   WidgetsFlutterBinding.ensureInitialized();
+///   await windowManager.ensureInitialized();
 ///
-///   if(await FlutterSingleInstance().isFirstInstance()){
-///     runApp(MyApp());
-///   }else{
+///   if (await FlutterSingleInstance().isFirstInstance()) {
+///     runApp(const MyApp());
+///   } else {
 ///     print("App is already running");
+///
+///     final err = await FlutterSingleInstance().focus();
+///
+///     if (err != null) {
+///       print("Error focusing running instance: $err");
+///     }
 ///
 ///     exit(0);
 ///   }
@@ -19,8 +29,15 @@
 /// ```
 library flutter_single_instance;
 
+export 'package:window_manager/window_manager.dart' show windowManager;
+
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_single_instance/src/focus.dart';
+import 'package:flutter_single_instance/src/generated/focus.pbgrpc.dart';
+import 'package:flutter_single_instance/src/instance.dart';
+import 'package:grpc/grpc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'src/linux.dart';
 import 'src/macos.dart';
@@ -30,24 +47,27 @@ import 'src/unsupported.dart';
 /// Provides utilities for checking if this is the first instance of the app.
 /// Make sure to call `WidgetsFlutterBinding.ensureInitialized()` before using this class.
 abstract class FlutterSingleInstance {
-  static FlutterSingleInstance? _instance;
+  static FlutterSingleInstance? _singelton;
 
+  /// Internal constructor for implementations.
   @protected
-  const FlutterSingleInstance.internal();
+  FlutterSingleInstance.internal();
 
+  Server? _server;
+  Instance? _instance;
+
+  /// Provides utilities for checking if this is the first instance of the app.
+  /// Make sure to call `WidgetsFlutterBinding.ensureInitialized()` before using this class.
   factory FlutterSingleInstance() {
-    _instance ??= kIsWeb || Platform.isAndroid || Platform.isIOS
-        ? const FlutterSingleInstanceUnsopported()
-        : Platform.isMacOS
-            ? const FlutterSingleInstanceMacOS()
-            : Platform.isLinux
-                ? const FlutterSingleInstanceLinux()
-                : Platform.isWindows
-                    ? const FlutterSingleInstanceWindows()
-                    : throw UnsupportedError(
-                        'Platform ${Platform.operatingSystem} is not supported.');
+    _singelton ??= Platform.isMacOS
+        ? FlutterSingleInstanceMacOS()
+        : Platform.isLinux
+            ? FlutterSingleInstanceLinux()
+            : Platform.isWindows
+                ? FlutterSingleInstanceWindows()
+                : FlutterSingleInstanceUnsopported();
 
-    return _instance!;
+    return _singelton!;
   }
 
   /// If enabled [FlutterSingleInstance.isFirstInstance] will always return true.
@@ -71,36 +91,42 @@ abstract class FlutterSingleInstance {
     var pidFile = await getPidFile(processName);
     pidFile!;
 
-    if (pidFile.existsSync()) {
-      var pid = int.parse(pidFile.readAsStringSync());
-
-      var pidName = await getProcessName(pid);
-
-      if (processName != pidName) {
-        // Process does not exist, so we can activate this instance.
-        await _activateInstance(processName);
-
-        return true;
-      } else {
-        // Process exists, so this is not the first instance.
-        return false;
-      }
-    } else {
+    if (!pidFile.existsSync()) {
       // No pid file, so this is the first instance.
-      await _activateInstance(processName);
-
+      await activateInstance(processName);
       return true;
     }
+
+    final data = await pidFile.readAsString();
+
+    _instance = Instance.fromJson(jsonDecode(data));
+
+    final pidName = await getProcessName(_instance!.pid);
+
+    if (processName == pidName) {
+      // Process exists, so this is not the first instance.
+      return false;
+    }
+
+    // Process does not exist, so we can activate this instance.
+    await activateInstance(processName);
+
+    return true;
   }
 
-  /// Activates the first instance of the app.
-  /// Writes a pid file to the temp directory.
-  Future<void> _activateInstance(String processName) async {
+  /// Activates the first instance of the app and writes a pid file to the temp directory.
+  @protected
+  Future<void> activateInstance(String processName) async {
     var pidFile = await getPidFile(processName);
 
     if (pidFile?.existsSync() == false) await pidFile?.create();
 
-    await pidFile?.writeAsString(pid.toString());
+    final instance = Instance(
+      pid: pid,
+      port: await startRpcServer(),
+    );
+
+    await pidFile?.writeAsString(jsonEncode(instance.toJson()));
   }
 
   /// Returns the pid file.
@@ -109,5 +135,54 @@ abstract class FlutterSingleInstance {
     var tmp = await getTemporaryDirectory();
 
     return File('${tmp.path}/$processName.pid');
+  }
+
+  /// Starts an RPC server that listens for focus requests.
+  @protected
+  Future<int> startRpcServer() async {
+    _server = Server.create(
+      services: [FocusService()],
+      codecRegistry: CodecRegistry(
+        codecs: const [
+          GzipCodec(),
+          IdentityCodec(),
+        ],
+      ),
+    );
+
+    await _server!.serve(port: 0);
+
+    return _server!.port!;
+  }
+
+  /// Focuses the running instance of the app and
+  /// returns `null` if the operation was successful or an error message if it failed.
+  Future<String?> focus() async {
+    if (_instance == null) return "No instance to focus";
+    if (_server != null) return "This is the first instance";
+
+    try {
+      final channel = ClientChannel(
+        'localhost',
+        port: _instance!.port,
+        options: ChannelOptions(
+          credentials: ChannelCredentials.insecure(),
+          codecRegistry: CodecRegistry(
+            codecs: const [
+              GzipCodec(),
+              IdentityCodec(),
+            ],
+          ),
+        ),
+      );
+
+      final client = FocusServiceClient(channel);
+
+      final response = await client.focus(FocusRequest());
+
+      return response.success ? null : response.error;
+    } catch (e) {
+      return e.toString();
+    }
   }
 }

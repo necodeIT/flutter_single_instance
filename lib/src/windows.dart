@@ -1,11 +1,10 @@
 import 'dart:io';
 import 'package:flutter_single_instance/flutter_single_instance.dart';
 
-/// Provides utilities for checking if this is the first instance of the app.
-///
-/// Platform-specific implementation for Windows.
+/// Implementation of [FlutterSingleInstance] for Windows.
 class FlutterSingleInstanceWindows extends FlutterSingleInstance {
-  const FlutterSingleInstanceWindows() : super.internal();
+  /// Implementation of [FlutterSingleInstance] for Windows.
+  FlutterSingleInstanceWindows() : super.internal();
 
   @override
   Future<String?> getProcessName(pid) async {

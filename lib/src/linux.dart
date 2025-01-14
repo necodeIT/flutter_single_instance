@@ -1,11 +1,10 @@
 import 'dart:io';
 import 'package:flutter_single_instance/flutter_single_instance.dart';
 
-/// Provides utilities for checking if this is the first instance of the app.
-///
-/// Platform-specific implementation for Linux.
+/// Implementation of [FlutterSingleInstance] for Linux.
 class FlutterSingleInstanceLinux extends FlutterSingleInstance {
-  const FlutterSingleInstanceLinux() : super.internal();
+  /// Implementation of [FlutterSingleInstance] for Linux.
+  FlutterSingleInstanceLinux() : super.internal();
 
   @override
   Future<String?> getProcessName(pid) async {
