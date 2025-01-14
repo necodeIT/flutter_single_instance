@@ -77,4 +77,4 @@ You can safely use this package in web and other unsupported platforms. It will 
 
 ## Limitations
 
-- ~~Currently this package does not provide a way to bring the existing instance to the front. If you have any ideas on how to achieve this, please open an issue or a pull request.~~ This limitation has been resolved in version 1.2.0 (unstable).
+- ~~Currently this package does not provide a way to bring the existing instance to the front. If you have any ideas on how to achieve this, please open an issue or a pull request.~~ This limitation has been resolved in version 1.2.0.

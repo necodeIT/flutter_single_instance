@@ -114,13 +114,17 @@ abstract class FlutterSingleInstance {
     final pidName = await getProcessName(_instance!.pid);
 
     if (processName == pidName) {
-      logger.finest("Process name matches, reporting as second instance");
+      logger.finest(
+        "Process name matches $processName, reporting as second instance",
+      );
 
       // Process exists, so this is not the first instance.
       return false;
     }
 
-    logger.finest("Process name does not match, activating instance");
+    logger.finest(
+      "Process name does not match $processName, activating instance",
+    );
 
     // Process does not exist, so we can activate this instance.
     await activateInstance(processName);
@@ -142,7 +146,7 @@ abstract class FlutterSingleInstance {
 
     await pidFile?.writeAsString(jsonEncode(instance.toJson()));
 
-    logger.finest("Instance activated: $instance at ${pidFile?.path}");
+    logger.finest("Activated $instance at ${pidFile?.path}");
   }
 
   /// Returns the pid file.
