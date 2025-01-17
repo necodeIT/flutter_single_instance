@@ -9,7 +9,7 @@ class FocusService extends FocusServiceBase {
     // ignore: invalid_use_of_protected_member
     final logger = FlutterSingleInstance().logger;
 
-    logger.finest('Received focus request from ${call.remoteAddress?.address}');
+    logger.finest('Received focus request from another instance');
 
     try {
       await windowManager.focus();
