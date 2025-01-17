@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.2.1](https://github.com/necodeIT/flutter_single_instance/compare/v1.2.0...v1.2.1) (2025-01-17)
+
+
+### Bug Fixes
+
+* resolve references not found in web mode ([b5a8129](https://github.com/necodeIT/flutter_single_instance/commit/b5a8129e7078413fe5725c740bafe71b67b5da9c))
+
 ## [1.2.0](https://github.com/necodeIT/flutter_single_instance/compare/v1.1.2...v1.2.0) (2025-01-14)
 
 
