@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.2.2](https://github.com/necodeIT/flutter_single_instance/compare/v1.2.1...v1.2.2) (2025-01-17)
+
+
+### Bug Fixes
+
+* handle web platform case in FlutterSingleInstance factory ([8c8c1bd](https://github.com/necodeIT/flutter_single_instance/commit/8c8c1bdc66a97a4b623411877ce35701dadf7293))
+
 ## [1.2.1](https://github.com/necodeIT/flutter_single_instance/compare/v1.2.0...v1.2.1) (2025-01-17)
 
 
