@@ -64,13 +64,15 @@ abstract class FlutterSingleInstance {
   /// Provides utilities for checking if this is the first instance of the app.
   /// Make sure to call `WidgetsFlutterBinding.ensureInitialized()` before using this class.
   factory FlutterSingleInstance() {
-    _singelton ??= Platform.isMacOS
-        ? MacOS()
-        : Platform.isLinux
-            ? Linux()
-            : Platform.isWindows
-                ? Windows()
-                : Unsupported();
+    _singelton ??= kIsWeb
+        ? Unsupported()
+        : Platform.isMacOS
+            ? MacOS()
+            : Platform.isLinux
+                ? Linux()
+                : Platform.isWindows
+                    ? Windows()
+                    : Unsupported();
 
     return _singelton!;
   }
