@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.2.3](https://github.com/necodeIT/flutter_single_instance/compare/v1.2.2...v1.2.3) (2025-02-11)
+
+
+### Bug Fixes
+
+* handle invalid pid file format ([f83535e](https://github.com/necodeIT/flutter_single_instance/commit/f83535edeb4d24727d9ab9f0fb48dd8a6453368a)), closes [#6](https://github.com/necodeIT/flutter_single_instance/issues/6)
+
 ## [1.2.2](https://github.com/necodeIT/flutter_single_instance/compare/v1.2.1...v1.2.2) (2025-01-17)
 
 
