@@ -109,7 +109,16 @@ abstract class FlutterSingleInstance {
 
     final data = await pidFile.readAsString();
 
-    _instance = Instance.fromJson(jsonDecode(data));
+    final json;
+
+    try {
+      json = jsonDecode(data);
+    } catch (e, s) {
+      logger.finest("Pid file is wrong format, assuming first instance", e, s);
+      return true;
+    }
+
+    _instance = Instance.fromJson(json);
 
     logger.finest("Pid file found, verifying instance: $_instance");
 
