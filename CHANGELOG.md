@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.3.1](https://github.com/necodeIT/flutter_single_instance/compare/v1.3.0...v1.3.1) (2025-04-01)
+
+
+### Bug Fixes
+
+* Add failure robustness ([2c733b7](https://github.com/necodeIT/flutter_single_instance/commit/2c733b7c2ca8cbbf1b96b347f602f2d7ac3ad0e0))
+
 ## [1.3.0](https://github.com/necodeIT/flutter_single_instance/compare/v1.2.4...v1.3.0) (2025-04-01)
 
 
