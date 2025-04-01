@@ -14,12 +14,21 @@ import 'dart:core' as $core;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 class FocusRequest extends $pb.GeneratedMessage {
-  factory FocusRequest() => create();
+  factory FocusRequest({
+    $core.List<$core.int>? metadata,
+  }) {
+    final $result = create();
+    if (metadata != null) {
+      $result.metadata = metadata;
+    }
+    return $result;
+  }
   FocusRequest._() : super();
   factory FocusRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory FocusRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FocusRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'flutter_single_instance'), createEmptyInstance: create)
+    ..a<$core.List<$core.int>>(1, _omitFieldNames ? '' : 'metadata', $pb.PbFieldType.OY)
     ..hasRequiredFields = false
   ;
 
@@ -43,6 +52,15 @@ class FocusRequest extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static FocusRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FocusRequest>(create);
   static FocusRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<$core.int> get metadata => $_getN(0);
+  @$pb.TagNumber(1)
+  set metadata($core.List<$core.int> v) { $_setBytes(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasMetadata() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMetadata() => clearField(1);
 }
 
 class FocusResponse extends $pb.GeneratedMessage {

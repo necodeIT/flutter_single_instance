@@ -14,4 +14,4 @@ linter:
     join_return_with_assignment: true
     prefer_for_elements_to_map_fromIterable: true
     null_check_on_nullable_type_parameter: true
-    # yet to be released: document_ignores: true
+    document_ignores: true

@@ -31,6 +31,7 @@ library flutter_single_instance;
 
 export 'package:window_manager/window_manager.dart' show windowManager;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -80,6 +81,17 @@ abstract class FlutterSingleInstance {
   /// If enabled [FlutterSingleInstance.isFirstInstance] will always return true.
   /// Defaults to [kDebugMode].
   static bool debugMode = kDebugMode;
+
+  /// Called before this instance is focused with metadata provided by the calling instance.
+  ///
+  /// ```dart
+  /// FlutterSingleInstance.onFocus = (metadata) {
+  ///   print("Focused instance with metadata: $metadata"); // "Focused instance with metadata: {hello: world}"
+  /// };
+  ///
+  /// FlutterSingleInstance().focus({"hello": "world"});
+  /// ```
+  static FutureOr<void> Function(Map<String, dynamic>)? onFocus;
 
   /// Retrieves the process name of the given [pid].
   /// Returns [null] if the process does not exist.
@@ -190,9 +202,10 @@ abstract class FlutterSingleInstance {
     return _server!.port!;
   }
 
-  /// Focuses the running instance of the app and
-  /// returns `null` if the operation was successful or an error message if it failed.
-  Future<String?> focus() async {
+  /// Focuses the running instance of the app and returns `null` if the operation was successful or an error message if it failed.
+  ///
+  /// The [metadata] parameter is passed to the focused instance's [onFocus] callback.
+  Future<String?> focus([Object? metadata]) async {
     if (_instance == null) return "No instance to focus";
     if (_server != null) return "This is the first instance";
 
@@ -213,9 +226,15 @@ abstract class FlutterSingleInstance {
         ),
       );
 
+      if (metadata == null) {
+        metadata = <String, dynamic>{};
+      }
+      final json = jsonEncode(metadata);
+      final binary = utf8.encode(json);
+
       final client = FocusServiceClient(channel);
 
-      final response = await client.focus(FocusRequest());
+      final response = await client.focus(FocusRequest(metadata: binary));
 
       if (response.success) {
         logger.finest("Instance focused");

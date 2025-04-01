@@ -17,7 +17,7 @@ class Unsupported extends FlutterSingleInstance {
   Future<File?> getPidFile(String processName) async => null;
 
   @override
-  Future<String?> focus() async => null;
+  Future<String?> focus([Object? metadata]) async => null;
 
   @override
   Future<void> activateInstance(String processName) async {}

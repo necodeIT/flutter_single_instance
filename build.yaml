@@ -1,0 +1,11 @@
+targets:
+  $default:
+    builders:
+      freezed:
+        enabled: true
+        generate_for:
+          exclude:
+            - example
+        options:
+          format: true
+          explicit_to_json: true

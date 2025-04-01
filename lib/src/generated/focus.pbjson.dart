@@ -16,11 +16,14 @@ import 'dart:typed_data' as $typed_data;
 @$core.Deprecated('Use focusRequestDescriptor instead')
 const FocusRequest$json = {
   '1': 'FocusRequest',
+  '2': [
+    {'1': 'metadata', '3': 1, '4': 1, '5': 12, '10': 'metadata'},
+  ],
 };
 
 /// Descriptor for `FocusRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List focusRequestDescriptor = $convert.base64Decode(
-    'CgxGb2N1c1JlcXVlc3Q=');
+    'CgxGb2N1c1JlcXVlc3QSGgoIbWV0YWRhdGEYASABKAxSCG1ldGFkYXRh');
 
 @$core.Deprecated('Use focusResponseDescriptor instead')
 const FocusResponse$json = {
