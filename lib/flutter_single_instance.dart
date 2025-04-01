@@ -100,59 +100,63 @@ abstract class FlutterSingleInstance {
   /// Returns true if this is the first instance of the app.
   /// Automatically writes a pid file to the temp directory if this is the first instance.
   Future<bool> isFirstInstance() async {
-    if (debugMode) {
-      logger.finest("Debug mode enabled, reporting as first instance");
-      return true;
-    }
-
     var processName = await getProcessName(pid); // get name of current process
     processName!;
 
     var pidFile = await getPidFile(processName);
     pidFile!;
 
-    if (!pidFile.existsSync()) {
-      logger.finest("No pid file found, activating instance");
+    Future<bool> check() async {
+      if (debugMode) {
+        logger.finest("Debug mode enabled, reporting as first instance");
+        return true;
+      }
 
-      // No pid file, so this is the first instance.
-      await activateInstance(processName);
-      return true;
-    }
+      if (!pidFile.existsSync()) {
+        logger.finest("No pid file found, activating instance");
 
-    final data = await pidFile.readAsString();
+        // No pid file, so this is the first instance.
+        return true;
+      }
 
-    final json;
+      final data = await pidFile.readAsString();
 
-    try {
-      json = jsonDecode(data);
-    } catch (e, s) {
-      logger.finest("Pid file is wrong format, assuming first instance", e, s);
-      return true;
-    }
+      final json;
 
-    _instance = Instance.fromJson(json);
+      try {
+        json = jsonDecode(data);
+      } catch (e, s) {
+        logger.finest(
+            "Pid file is wrong format, assuming first instance", e, s);
+        return true;
+      }
 
-    logger.finest("Pid file found, verifying instance: $_instance");
+      _instance = Instance.fromJson(json);
 
-    final pidName = await getProcessName(_instance!.pid);
+      logger.finest("Pid file found, verifying instance: $_instance");
 
-    if (processName == pidName) {
+      final pidName = await getProcessName(_instance!.pid);
+
+      if (processName == pidName) {
+        logger.finest(
+          "Process name matches $processName, reporting as second instance",
+        );
+
+        // Process exists, so this is not the first instance.
+        return false;
+      }
+
       logger.finest(
-        "Process name matches $processName, reporting as second instance",
+        "Process name does not match $processName, activating instance",
       );
-
-      // Process exists, so this is not the first instance.
-      return false;
+      return true;
     }
 
-    logger.finest(
-      "Process name does not match $processName, activating instance",
-    );
+    final isFirstInstance = await check();
 
-    // Process does not exist, so we can activate this instance.
-    await activateInstance(processName);
+    if (isFirstInstance) await activateInstance(processName);
 
-    return true;
+    return isFirstInstance;
   }
 
   /// Activates the first instance of the app and writes a pid file to the temp directory.
@@ -160,16 +164,21 @@ abstract class FlutterSingleInstance {
   Future<void> activateInstance(String processName) async {
     var pidFile = await getPidFile(processName);
 
-    if (pidFile?.existsSync() == false) await pidFile?.create();
+    if (pidFile == null) {
+      logger.finest("Failed to retrieve process name, aborting");
+      return;
+    }
+
+    if (pidFile.existsSync() == false) await pidFile.create();
 
     final instance = Instance(
       pid: pid,
       port: await startRpcServer(),
     );
 
-    await pidFile?.writeAsString(jsonEncode(instance.toJson()));
+    await pidFile.writeAsString(jsonEncode(instance.toJson()));
 
-    logger.finest("Activated $instance at ${pidFile?.path}");
+    logger.finest("Activated $instance at ${pidFile.path}");
   }
 
   /// Returns the pid file.
@@ -183,6 +192,11 @@ abstract class FlutterSingleInstance {
   /// Starts an RPC server that listens for focus requests.
   @protected
   Future<int> startRpcServer() async {
+    if (_server != null) {
+      logger.finest("RPC server already started");
+      return _server!.port!;
+    }
+
     logger.finest("Starting RPC server");
 
     _server = Server.create(
