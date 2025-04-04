@@ -55,6 +55,11 @@ abstract class FlutterSingleInstance {
   @protected
   FlutterSingleInstance.internal();
 
+  /// The port used for the RPC server receiving focus requests.
+  ///
+  /// Defaults to `0`, letting the OS choose a random port.
+  static int port = 0;
+
   Server? _server;
   Instance? _instance;
 
@@ -209,7 +214,7 @@ abstract class FlutterSingleInstance {
       ),
     );
 
-    await _server!.serve(port: 0);
+    await _server!.serve(port: port);
 
     logger.finest("RPC server started on port ${_server!.port}");
 
