@@ -60,6 +60,11 @@ abstract class FlutterSingleInstance {
   /// Defaults to `0`, letting the OS choose a random port.
   static int port = 0;
 
+  /// The address used for the RPC server receiving focus requests.
+  ///
+  /// Defaults to `InternetAddress.loopbackIPv4`.
+  static dynamic address = InternetAddress.loopbackIPv4;
+
   Server? _server;
   Instance? _instance;
 
@@ -214,7 +219,7 @@ abstract class FlutterSingleInstance {
       ),
     );
 
-    await _server!.serve(port: port);
+    await _server!.serve(port: port, address: address);
 
     logger.finest("RPC server started on port ${_server!.port}");
 
