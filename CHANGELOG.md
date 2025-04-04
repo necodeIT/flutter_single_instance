@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.4.0](https://github.com/necodeIT/flutter_single_instance/compare/v1.3.1...v1.4.0) (2025-04-04)
+
+
+### Features
+
+* Add RPC port config ([69f3720](https://github.com/necodeIT/flutter_single_instance/commit/69f37200418df8f406b62f4913c80ea1fa046c89)), closes [#8](https://github.com/necodeIT/flutter_single_instance/issues/8)
+
 ## [1.3.1](https://github.com/necodeIT/flutter_single_instance/compare/v1.3.0...v1.3.1) (2025-04-01)
 
 

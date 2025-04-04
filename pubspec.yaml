@@ -1,7 +1,7 @@
 name: flutter_single_instance
 description: A simple way to check if your application is already running.
 
-version: 1.3.1
+version: 1.4.0
 repository: https://github.com/necodeIT/flutter_single_instance
 platforms:
   linux:
