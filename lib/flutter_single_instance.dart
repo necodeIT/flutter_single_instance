@@ -65,6 +65,11 @@ abstract class FlutterSingleInstance {
   /// Defaults to `InternetAddress.loopbackIPv4`.
   static dynamic address = InternetAddress.loopbackIPv4;
 
+  /// The process name used to verify the process saved in the pid file.
+  ///
+  /// If not set [getProcessName] will be used with the current [pid].
+  static String? processName;
+
   Server? _server;
   Instance? _instance;
 
@@ -110,7 +115,8 @@ abstract class FlutterSingleInstance {
   /// Returns true if this is the first instance of the app.
   /// Automatically writes a pid file to the temp directory if this is the first instance.
   Future<bool> isFirstInstance() async {
-    var processName = await getProcessName(pid); // get name of current process
+    var processName = FlutterSingleInstance.processName ??
+        await getProcessName(pid); // get name of current process
     processName!;
 
     var pidFile = await getPidFile(processName);
@@ -145,7 +151,8 @@ abstract class FlutterSingleInstance {
 
       logger.finest("Pid file found, verifying instance: $_instance");
 
-      final pidName = await getProcessName(_instance!.pid);
+      final pidName = FlutterSingleInstance.processName ??
+          await getProcessName(_instance!.pid);
 
       if (processName == pidName) {
         logger.finest(
