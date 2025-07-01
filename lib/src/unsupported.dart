@@ -20,7 +20,7 @@ class Unsupported extends FlutterSingleInstance {
   Future<String?> focus([Object? metadata]) async => null;
 
   @override
-  Future<void> activateInstance(String processName) async {}
+  Future<bool> activateInstance(String processName) async => true;
 
   @override
   Future<int> startRpcServer() {
