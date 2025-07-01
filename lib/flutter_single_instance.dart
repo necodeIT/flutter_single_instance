@@ -222,7 +222,8 @@ abstract class FlutterSingleInstance {
   /// Focuses the running instance of the app and returns `null` if the operation was successful or an error message if it failed.
   ///
   /// The [metadata] parameter is passed to the focused instance's [onFocus] callback.
-  Future<String?> focus([Object? metadata]) async {
+  /// If [bringToFront] is true, the focused instance will be brought to the front.
+  Future<String?> focus([Object? metadata, bool bringToFront = true]) async {
     if (_instance == null) return "No instance to focus";
     if (_server != null) return "This is the first instance";
 
@@ -251,7 +252,8 @@ abstract class FlutterSingleInstance {
 
       final client = FocusServiceClient(channel);
 
-      final response = await client.focus(FocusRequest(metadata: binary));
+      final response = await client
+          .focus(FocusRequest(metadata: binary, bringToFront: bringToFront));
 
       if (response.success) {
         logger.finest("Instance focused");
