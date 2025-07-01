@@ -151,8 +151,7 @@ abstract class FlutterSingleInstance {
 
       logger.finest("Pid file found, verifying instance: $_instance");
 
-      final pidName = FlutterSingleInstance.processName ??
-          await getProcessName(_instance!.pid);
+      final pidName = await getProcessName(_instance!.pid);
 
       if (processName == pidName) {
         logger.finest(
