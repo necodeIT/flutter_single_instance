@@ -135,11 +135,10 @@ abstract class FlutterSingleInstance {
         return true;
       }
 
-      final data = await pidFile.readAsString();
-
       final json;
 
       try {
+        final data = await pidFile.readAsString();
         json = jsonDecode(data);
       } catch (e, s) {
         logger.finest(
@@ -151,7 +150,17 @@ abstract class FlutterSingleInstance {
 
       logger.finest("Pid file found, verifying instance: $_instance");
 
-      final pidName = await getProcessName(_instance!.pid);
+      if (_instance!.pid == pid) {
+        logger.finest(
+          "Current pid matches instance pid ${_instance!.pid}, reporting as first instance",
+        );
+
+        // Current process is the same as the one in the pid file, so this is the first instance.
+        return true;
+      }
+
+      final pidName = await FlutterSingleInstance.processName ??
+          getProcessName(_instance!.pid);
 
       if (processName == pidName) {
         logger.finest(
