@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.6.0](https://github.com/necodeIT/flutter_single_instance/compare/v1.5.1...v1.6.0) (2025-07-02)
+
+
+### Features
+
+* add process name config ([e388e8a](https://github.com/necodeIT/flutter_single_instance/commit/e388e8a3826161c665d53b829244946725da7237))
+* switch to lock files instead of process name resolution ([7e8b156](https://github.com/necodeIT/flutter_single_instance/commit/7e8b156020c6832d04fb27a0becb67b5d47e43d5))
+
+
+### Bug Fixes
+
+* actually get the name of the running process ([05102e9](https://github.com/necodeIT/flutter_single_instance/commit/05102e9c5e960ca23de052f5868e346b1deb8729))
+
 ## [1.5.1](https://github.com/necodeIT/flutter_single_instance/compare/v1.5.0...v1.5.1) (2025-06-01)
 
 
