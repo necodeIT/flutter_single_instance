@@ -9,6 +9,7 @@
 // ignore_for_file: non_constant_identifier_names, prefer_final_fields
 // ignore_for_file: unnecessary_import, unnecessary_this, unused_import
 
+import 'dart:async' as $async;
 import 'dart:core' as $core;
 
 import 'package:protobuf/protobuf.dart' as $pb;
@@ -16,10 +17,14 @@ import 'package:protobuf/protobuf.dart' as $pb;
 class FocusRequest extends $pb.GeneratedMessage {
   factory FocusRequest({
     $core.List<$core.int>? metadata,
+    $core.bool? bringToFront,
   }) {
     final $result = create();
     if (metadata != null) {
       $result.metadata = metadata;
+    }
+    if (bringToFront != null) {
+      $result.bringToFront = bringToFront;
     }
     return $result;
   }
@@ -29,6 +34,7 @@ class FocusRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'FocusRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'flutter_single_instance'), createEmptyInstance: create)
     ..a<$core.List<$core.int>>(1, _omitFieldNames ? '' : 'metadata', $pb.PbFieldType.OY)
+    ..aOB(2, _omitFieldNames ? '' : 'bringToFront', protoName: 'bringToFront')
     ..hasRequiredFields = false
   ;
 
@@ -61,6 +67,15 @@ class FocusRequest extends $pb.GeneratedMessage {
   $core.bool hasMetadata() => $_has(0);
   @$pb.TagNumber(1)
   void clearMetadata() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get bringToFront => $_getBF(1);
+  @$pb.TagNumber(2)
+  set bringToFront($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasBringToFront() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearBringToFront() => clearField(2);
 }
 
 class FocusResponse extends $pb.GeneratedMessage {
@@ -125,6 +140,15 @@ class FocusResponse extends $pb.GeneratedMessage {
   $core.bool hasError() => $_has(1);
   @$pb.TagNumber(2)
   void clearError() => clearField(2);
+}
+
+class FocusServiceApi {
+  $pb.RpcClient _client;
+  FocusServiceApi(this._client);
+
+  $async.Future<FocusResponse> focus($pb.ClientContext? ctx, FocusRequest request) =>
+    _client.invoke<FocusResponse>(ctx, 'FocusService', 'Focus', request, FocusResponse())
+  ;
 }
 
 

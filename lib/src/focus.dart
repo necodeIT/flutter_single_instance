@@ -27,16 +27,18 @@ class FocusService extends FocusServiceBase {
       }
     }
 
-    try {
-      await windowManager.focus();
+    if (request.bringToFront) {
+      try {
+        await windowManager.focus();
 
-      logger.finest('Window focused');
+        logger.finest('Window focused');
+      } catch (e) {
+        logger.finest('Failed to focus window', e);
 
-      return FocusResponse(success: true);
-    } catch (e) {
-      logger.finest('Failed to focus window', e);
-
-      return FocusResponse(success: false, error: e.toString());
+        return FocusResponse(success: false, error: e.toString());
+      }
     }
+
+    return FocusResponse(success: true);
   }
 }

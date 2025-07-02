@@ -6,7 +6,10 @@ service FocusService {
   rpc Focus(FocusRequest) returns (FocusResponse) {}
 }
 
-message FocusRequest { bytes metadata = 1; }
+message FocusRequest {
+  bytes metadata = 1;
+  bool bringToFront = 2;
+}
 
 message FocusResponse {
   bool success = 1;

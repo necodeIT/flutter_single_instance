@@ -29,11 +29,10 @@
 /// ```
 library flutter_single_instance;
 
-export 'package:window_manager/window_manager.dart' show windowManager;
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_single_instance/src/focus.dart';
 import 'package:flutter_single_instance/src/generated/focus.pbgrpc.dart';
@@ -41,10 +40,13 @@ import 'package:flutter_single_instance/src/instance.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
+
 import 'src/linux.dart';
 import 'src/macos.dart';
-import 'src/windows.dart';
 import 'src/unsupported.dart';
+import 'src/windows.dart';
+
+export 'package:window_manager/window_manager.dart' show windowManager;
 
 /// Provides utilities for checking if this is the first instance of the app.
 /// Make sure to call `WidgetsFlutterBinding.ensureInitialized()` before using this class.
@@ -72,6 +74,8 @@ abstract class FlutterSingleInstance {
 
   Server? _server;
   Instance? _instance;
+  bool? _isFirstInstance;
+  RandomAccessFile? _locker;
 
   /// Logger for this class.
   @protected
@@ -115,86 +119,69 @@ abstract class FlutterSingleInstance {
   /// Returns true if this is the first instance of the app.
   /// Automatically writes a pid file to the temp directory if this is the first instance.
   Future<bool> isFirstInstance() async {
-    var processName = FlutterSingleInstance.processName ??
-        await getProcessName(pid); // get name of current process
-    processName!;
-
-    var pidFile = await getPidFile(processName);
-    pidFile!;
-
-    Future<bool> check() async {
+    _isFirstInstance ??= await () async {
       if (debugMode) {
         logger.finest("Debug mode enabled, reporting as first instance");
         return true;
       }
 
-      if (!pidFile.existsSync()) {
-        logger.finest("No pid file found, activating instance");
+      var processName = FlutterSingleInstance.processName ??
+          await getProcessName(pid); // get name of current process
+      processName!;
 
-        // No pid file, so this is the first instance.
-        return true;
-      }
+      return activateInstance(processName);
+    }();
 
-      final data = await pidFile.readAsString();
-
-      final json;
-
-      try {
-        json = jsonDecode(data);
-      } catch (e, s) {
-        logger.finest(
-            "Pid file is wrong format, assuming first instance", e, s);
-        return true;
-      }
-
-      _instance = Instance.fromJson(json);
-
-      logger.finest("Pid file found, verifying instance: $_instance");
-
-      final pidName = await getProcessName(_instance!.pid);
-
-      if (processName == pidName) {
-        logger.finest(
-          "Process name matches $processName, reporting as second instance",
-        );
-
-        // Process exists, so this is not the first instance.
-        return false;
-      }
-
-      logger.finest(
-        "Process name does not match $processName, activating instance",
-      );
-      return true;
-    }
-
-    final isFirstInstance = await check();
-
-    if (isFirstInstance) await activateInstance(processName);
-
-    return isFirstInstance;
+    return _isFirstInstance!;
   }
 
   /// Activates the first instance of the app and writes a pid file to the temp directory.
   @protected
-  Future<void> activateInstance(String processName) async {
-    var pidFile = await getPidFile(processName);
+  Future<bool> activateInstance(String processName) async {
+    assert(_locker == null && _instance == null,
+        "activateInstance should only be called once");
 
+    final pidFile = await getPidFile(processName);
     if (pidFile == null) {
-      logger.finest("Failed to retrieve process name, aborting");
-      return;
+      logger.finest("Failed to get pid file, assuming first instance");
+      return true;
     }
 
-    if (pidFile.existsSync() == false) await pidFile.create();
+    // Try to lock the file, if it fails, another instance is running
+    try {
+      final locker =
+          await File(pidFile.path + ".lock").open(mode: FileMode.write);
+      _locker = await locker.lock();
+    } catch (_) {}
 
-    final instance = Instance(
-      pid: pid,
-      port: await startRpcServer(),
-    );
+    if (_locker == null) {
+      // Another instance is running, try to read the pid file
+      try {
+        final data = await pidFile.readAsString();
+        final json = jsonDecode(data);
 
-    await pidFile.writeAsString(jsonEncode(instance.toJson()));
+        _instance = Instance.fromJson(json);
 
-    logger.finest("Activated $instance at ${pidFile.path}");
+        logger.finest("Failed to lock pid file, reporting as second instance");
+      } catch (e, s) {
+        logger.finest(
+            "Pid file is wrong format, reporting as second instance", e, s);
+      }
+
+      return false;
+    } else {
+      // This is the first instance, create a new instance and write it to the pid file
+      final instance = Instance(
+        pid: pid,
+        port: await startRpcServer(),
+      );
+
+      // Write the instance to the pid file
+      await pidFile.writeAsString(jsonEncode(instance.toJson()));
+
+      logger.finest("Activated $instance at ${pidFile.path}");
+      return true;
+    }
   }
 
   /// Returns the pid file.
@@ -235,7 +222,8 @@ abstract class FlutterSingleInstance {
   /// Focuses the running instance of the app and returns `null` if the operation was successful or an error message if it failed.
   ///
   /// The [metadata] parameter is passed to the focused instance's [onFocus] callback.
-  Future<String?> focus([Object? metadata]) async {
+  /// If [bringToFront] is true, the focused instance will be brought to the front.
+  Future<String?> focus([Object? metadata, bool bringToFront = true]) async {
     if (_instance == null) return "No instance to focus";
     if (_server != null) return "This is the first instance";
 
@@ -264,7 +252,8 @@ abstract class FlutterSingleInstance {
 
       final client = FocusServiceClient(channel);
 
-      final response = await client.focus(FocusRequest(metadata: binary));
+      final response = await client
+          .focus(FocusRequest(metadata: binary, bringToFront: bringToFront));
 
       if (response.success) {
         logger.finest("Instance focused");
