@@ -14,11 +14,13 @@ A simple way to check if your application is already running.
 ✅ - Confirmed working. <br/>
 ⚠️ - Always reports as first instance.
 
+> Note: In debug builds, this package will always report as the first instance to allow for easier testing. You can disable this behavior by setting `debugMode` to false.
+
 ## Installation
 
 Add `flutter_single_instance` as a dependency in your `pubspec.yaml` file.
 
-```yaml
+```bash
 flutter pub add flutter_single_instance
 ```
 

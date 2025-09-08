@@ -118,6 +118,8 @@ abstract class FlutterSingleInstance {
 
   /// Returns true if this is the first instance of the app.
   /// Automatically writes a pid file to the temp directory if this is the first instance.
+  ///
+  /// **NOTE:** If [debugMode] is true, this will always return true. (Enabled by default in debug builds)
   Future<bool> isFirstInstance() async {
     _isFirstInstance ??= await () async {
       if (debugMode) {
