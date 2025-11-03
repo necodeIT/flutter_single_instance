@@ -11,14 +11,16 @@ class Unsupported extends FlutterSingleInstance {
   Future<String?> getProcessName(int pid) async => null;
 
   @override
-  Future<bool> isFirstInstance() async => true;
+  Future<bool> isFirstInstance(
+          {int maxRetries = 1,
+          Duration retryInterval = const Duration(milliseconds: 1000)}) async =>
+      true;
 
   @override
   Future<File?> getPidFile(String processName) async => null;
 
   @override
-  Future<String?> focus([Object? metadata, bool bringToFront = true]) async =>
-      null;
+  Future<String?> focus([Object? metadata, bool bringToFront = true]) async => null;
 
   @override
   Future<bool> activateInstance(String processName) async => true;
