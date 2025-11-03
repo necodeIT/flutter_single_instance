@@ -12,7 +12,7 @@ class Unsupported extends FlutterSingleInstance {
 
   @override
   Future<bool> isFirstInstance(
-          {int maxRetries = 10,
+          {int maxRetries = 1,
           Duration retryInterval = const Duration(milliseconds: 1000)}) async =>
       true;
 
