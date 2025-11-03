@@ -74,7 +74,7 @@ abstract class FlutterSingleInstance {
 
   Server? _server;
   Instance? _instance;
-  bool? _isFirstInstance;
+  Future<bool>? _isFirstInstance;
   RandomAccessFile? _locker;
 
   /// Logger for this class.
@@ -116,22 +116,63 @@ abstract class FlutterSingleInstance {
   /// Returns [null] if the process does not exist.
   Future<String?> getProcessName(int pid);
 
-  /// Returns true if this is the first instance of the app.
-  /// Automatically writes a pid file to the temp directory if this is the first instance.
+  /// Checks if this is the first running instance of the app.
   ///
-  /// **NOTE:** If [debugMode] is true, this will always return true. (Enabled by default in debug builds)
-  Future<bool> isFirstInstance() async {
-    _isFirstInstance ??= await () async {
+  /// Returns `true` if this is the first instance, `false` if another instance is already running.
+  /// If this is the first instance, a PID file will be created and an RPC server will be started.
+  /// If another instance is running, its information will be stored in [_instance] for use by
+  /// [focus].
+  ///
+  /// [maxRetries] specifies the maximum number of retry attempts (defaults to `1`).
+  /// [retryInterval] specifies the interval between retries (defaults to `1000` milliseconds).
+  ///
+  /// **Note:** If [debugMode] is `true`, this method always returns `true`. The method result is
+  /// cached, and the cache is cleared if activation fails after max retries.
+  Future<bool> isFirstInstance({
+    int maxRetries = 1,
+    Duration retryInterval = const Duration(milliseconds: 1000),
+  }) async {
+    if (_isFirstInstance != null) {
+      return _isFirstInstance!;
+    }
+
+    _isFirstInstance = () async {
       if (debugMode) {
         logger.finest("Debug mode enabled, reporting as first instance");
         return true;
       }
 
       var processName = FlutterSingleInstance.processName ??
-          await getProcessName(pid); // get name of current process
+          await getProcessName(pid); // Get name of current process.
       processName!;
 
-      return activateInstance(processName);
+      // Retry logic for activating instance.
+      bool result = false;
+      int attempt = 0;
+
+      while (attempt < maxRetries) {
+        // Wait before retrying (skip for first attempt).
+        if (attempt > 0) {
+          logger.finest(
+              "Retrying activateInstance (attempt $attempt/$maxRetries)");
+          await Future.delayed(retryInterval);
+        }
+
+        result = await activateInstance(processName);
+
+        if (result) {
+          break; // Exit loop if activation succeeds.
+        }
+
+        attempt++;
+      }
+
+      if (!result) {
+        // Reset the isFirstInstance future to allow for retries.
+        _isFirstInstance = null;
+      }
+
+      return result;
     }();
 
     return _isFirstInstance!;
@@ -140,8 +181,10 @@ abstract class FlutterSingleInstance {
   /// Activates the first instance of the app and writes a pid file to the temp directory.
   @protected
   Future<bool> activateInstance(String processName) async {
-    assert(_locker == null && _instance == null,
-        "activateInstance should only be called once");
+    if (_locker != null) {
+      logger.finest("Already activated instance, returning true");
+      return true;
+    }
 
     final pidFile = await getPidFile(processName);
     if (pidFile == null) {
@@ -149,7 +192,7 @@ abstract class FlutterSingleInstance {
       return true;
     }
 
-    // Try to lock the file, if it fails, another instance is running
+    // Try to lock the file, if it fails, another instance is running.
     try {
       final locker =
           await File(pidFile.path + ".lock").open(mode: FileMode.write);
@@ -157,7 +200,7 @@ abstract class FlutterSingleInstance {
     } catch (_) {}
 
     if (_locker == null) {
-      // Another instance is running, try to read the pid file
+      // Another instance is running, try to read the pid file.
       try {
         final data = await pidFile.readAsString();
         final json = jsonDecode(data);
@@ -172,14 +215,17 @@ abstract class FlutterSingleInstance {
 
       return false;
     } else {
-      // This is the first instance, create a new instance and write it to the pid file
+      // This is the first instance, create a new instance and write it to the pid file.
       final instance = Instance(
         pid: pid,
         port: await startRpcServer(),
       );
 
-      // Write the instance to the pid file
+      // Write the instance to the pid file.
       await pidFile.writeAsString(jsonEncode(instance.toJson()));
+
+      // Reset the instance.
+      _instance = null;
 
       logger.finest("Activated $instance at ${pidFile.path}");
       return true;
