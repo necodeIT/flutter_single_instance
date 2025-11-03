@@ -137,8 +137,8 @@ abstract class FlutterSingleInstance {
       return _isFirstInstance!;
     }
 
-assert(maxRetries >= 1, 'maxRetries must be greater than or equal to 1');
-assert(retryInterval != Duration.zero, 'retryInterval must be non-zero');
+    assert(maxRetries >= 1, 'maxRetries must be greater than or equal to 1');
+    assert(retryInterval != Duration.zero, 'retryInterval must be non-zero');
 
     _isFirstInstance = () async {
       if (debugMode) {
