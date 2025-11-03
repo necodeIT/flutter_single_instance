@@ -123,7 +123,8 @@ abstract class FlutterSingleInstance {
   /// If another instance is running, its information will be stored in [_instance] for use by
   /// [focus].
   ///
-  /// [maxRetries] specifies the maximum number of retry attempts (defaults to `1`).
+  /// [maxRetries] specifies the maximum number of attempts until this instance ultimately reports as a subsequent one. 
+  /// If set to `1` (default) this instance immediately reports as subsequent if another instance is already running.
   /// [retryInterval] specifies the interval between retries (defaults to `1000` milliseconds).
   ///
   /// **Note:** If [debugMode] is `true`, this method always returns `true`. The method result is
@@ -135,6 +136,9 @@ abstract class FlutterSingleInstance {
     if (_isFirstInstance != null) {
       return _isFirstInstance!;
     }
+
+assert(maxRetries >= 1, 'maxRetries must be greater than or equal to 1');
+assert(retryInterval != Duration.zero, 'retryInterval must be non-zero');
 
     _isFirstInstance = () async {
       if (debugMode) {
