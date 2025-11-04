@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.7.0](https://github.com/necodeIT/flutter_single_instance/compare/v1.6.1...v1.7.0) (2025-11-04)
+
+
+### Features
+
+* Add cache and retry support ([#14](https://github.com/necodeIT/flutter_single_instance/issues/14)) ([d1ff49f](https://github.com/necodeIT/flutter_single_instance/commit/d1ff49fc98b5af66b601eca2766706dd7d38b38b))
+
 ## [1.6.1](https://github.com/necodeIT/flutter_single_instance/compare/v1.6.0...v1.6.1) (2025-09-08)
 
 
